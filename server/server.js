@@ -7,22 +7,28 @@ import bodyParser from "body-parser";
 import {
   generateCodes,
   getBasicAuthorizationHeader,
+  formatHistoricalSyncEvents,
+  formatNewFiringEvent
+} from "./utils.js";
+
+import {
   makeApiCallWithRefresh,
   revokeAPIAccess,
   klaviyoFetchUserIdFromEmail,
   klaviyoFetchProfileTimeline,
   klaviyoSendEvent
-} from "./utils.js";
+} from "./apis.js";
+
+import {
+  KLAVIYO_AUTHORIZATION_URL,
+  KLAVIYO_REVOKE_URL,
+  KLAVIYO_TOKEN_URL,
+  WEB_APP_URL,
+  FIRED_KILN_METRIC,
+  PORT
+} from "./constants.js";
 
 const app = express();
-const port = 4000;
-
-const KLAVIYO_AUTHORIZATION_URL =
-  "https://www.klaviyo.com/oauth/authorize";
-const KLAVIYO_REVOKE_URL = "https://a.klaviyo.com/oauth/revoke";
-const KLAVIYO_TOKEN_URL = "https://a.klaviyo.com/oauth/token";
-const WEB_APP_URL = "http://localhost:3000";
-const FIRED_KILN_METRIC = "VXcuZB";
 
 dotenv.config();
 app.use(cors());
@@ -30,7 +36,7 @@ app.use(bodyParser.json());
 
 const clientId = process.env.KL_CLIENT_ID;
 const clientSecret = process.env.KL_CLIENT_SECRET;
-const redirectUri = `http://localhost:${port}/oauth/klaviyo/callback`;
+const redirectUri = `http://localhost:${PORT}/oauth/klaviyo/callback`;
 const scope =
   "accounts:read events:read events:write profiles:read profiles:write metrics:read metrics:write";
 
@@ -123,38 +129,9 @@ app.post("/historical-sync", async (req, res) => {
     const firedKilnMetricsOnly = profileTimeline.data.filter(
       (event) => event.relationships.metric.data.id === FIRED_KILN_METRIC
     );
-    const formattedEvents = firedKilnMetricsOnly.map((item) => {
-      return {
-        data: {
-          type: "event",
-          attributes: {
-            properties: {
-              ...item.attributes.event_properties
-            },
-            time: item.attributes.datetime,
-            metric: {
-              data: {
-                type: "metric",
-                attributes: {
-                  name: "Fired Kiln"
-                }
-              }
-            },
-            profile: {
-              data: {
-                type: "profile",
-                id: userKlaviyoId,
-                attributes: {
-                  properties: {
-                    historicalBackfill: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      };
-    });
+    const formattedEvents = firedKilnMetricsOnly.map((item) =>
+      formatHistoricalSyncEvents(item, userKlaviyoId)
+    );
 
     console.log(`Processing ${formattedEvents.length} items`);
     let successes = 0;
@@ -204,31 +181,10 @@ app.post("/new-entry", async (req, res) => {
       }
     };
 
-    const formattedEvent = {
-      data: {
-        type: "event",
-        attributes: {
-          time: formattedProperties.firing_schedule.date_start,
-          properties: formattedProperties,
-          metric: {
-            data: {
-              type: "metric",
-              attributes: {
-                name: "Fired Kiln"
-              }
-            }
-          },
-          profile: {
-            data: {
-              type: "profile",
-              attributes: {
-                email
-              }
-            }
-          }
-        }
-      }
-    };
+    const formattedEvent = formatNewFiringEvent(
+      formattedProperties,
+      email
+    );
 
     const klResponse = await klaviyoSendEvent(
       formattedEvent,
@@ -287,6 +243,6 @@ app.get("/recent-firings", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`);
 });
