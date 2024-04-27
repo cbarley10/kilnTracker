@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { Layout, Typography, Descriptions } from "antd";
 import { formatDate } from "../utils/helpers";
+import { CREATE_DEFAULT_FIRING_PROPERTIES } from "../constants";
 const { Title } = Typography;
 const { Content } = Layout;
 
@@ -20,49 +21,17 @@ const RecentFiring = () => {
     }
   } = useLocation();
 
-  const firingProperties = [
-    {
-      key: "2",
-      label: "Start Date",
-      children: formatDate(dateStart)
-    },
-    {
-      key: "1",
-      label: "Cone Level",
-      children: coneLevel
-    },
-    {
-      key: "3",
-      label: "Firing Schedule Preset?",
-      children: firingSchedulePreset ? "yes" : "no"
-    },
-    {
-      key: "4",
-      label: "Firing Schedule Preset Name",
-      children: firingSchedulePresetName ?? "none"
-    },
-    {
-      key: "5",
-      label: "Percent Full",
-      children: percentFull
-    },
-    {
-      key: "6",
-      label: "Total Time Elapsed",
-      children: totalTime
-    },
-    {
-      key: "7",
-      label: "Type of Firing",
-      children: type
-    },
-    {
-      key: "8",
-      label: "Notes",
-      children: notes,
-      span: 10
-    }
-  ];
+  const firingProperties = CREATE_DEFAULT_FIRING_PROPERTIES(
+    formatDate,
+    dateStart,
+    coneLevel,
+    firingSchedulePreset,
+    firingSchedulePresetName,
+    percentFull,
+    totalTime,
+    type,
+    notes
+  );
 
   return (
     <Content

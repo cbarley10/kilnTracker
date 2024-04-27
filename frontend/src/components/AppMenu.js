@@ -10,6 +10,21 @@ import GoogleAuth from "./GoogleAuth";
 const { Sider } = Layout;
 
 const AppMenu = ({ collapsed, login, profile, logOut }) => {
+  const MenuItems = () => {
+    return [
+      {
+        key: "1",
+        icon: <PlusSquareOutlined />,
+        label: <Link to="/create">Log new Kiln Firing</Link>
+      },
+      {
+        key: "2",
+        icon: <AppstoreAddOutlined />,
+        label: <Link to="/integrations">Integrations</Link>
+      }
+    ];
+  };
+
   return (
     <Sider trigger={null} collapsible collapsed={collapsed}>
       <div
@@ -23,22 +38,7 @@ const AppMenu = ({ collapsed, login, profile, logOut }) => {
           <Link to="/">
             <div className="logo" />
           </Link>
-          <Menu
-            theme="dark"
-            mode="inline"
-            items={[
-              {
-                key: "1",
-                icon: <PlusSquareOutlined />,
-                label: <Link to="/create">Log new Kiln Firing</Link>
-              },
-              {
-                key: "2",
-                icon: <AppstoreAddOutlined />,
-                label: <Link to="/integrations">Integrations</Link>
-              }
-            ]}
-          />
+          <Menu theme="dark" mode="inline" items={MenuItems()} />
         </div>
         <GoogleAuth
           collapsed={collapsed}

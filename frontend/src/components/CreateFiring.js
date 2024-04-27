@@ -1,3 +1,4 @@
+import { DEV_URL, FORM_INITIAL_VALUES } from "../constants";
 import React, { useState } from "react";
 import axios from "axios";
 import {
@@ -34,15 +35,11 @@ const CreateFiring = ({ profile }) => {
         email: profile.email,
         properties: formattedValues
       };
-      const response = await axios.post(
-        "http://localhost:4000/new-entry",
-        body,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
+      const response = await axios.post(`${DEV_URL}/new-entry`, body, {
+        headers: {
+          "Content-Type": "application/json"
         }
-      );
+      });
       console.log(response);
       if (response.status === 200) {
         setMessage("Success! Kiln Firing Recorded");
@@ -83,16 +80,7 @@ const CreateFiring = ({ profile }) => {
         wrapperCol={{
           span: 14
         }}
-        initialValues={{
-          totalTime: 10,
-          title: "Bisque for March 15th Drop",
-          type: "bisque",
-          firingSchedulePreset: true,
-          firingSchedulePresetName: "Slow Bisque",
-          percentFull: 75,
-          notes: "lorem ipsum",
-          coneLevel: "04"
-        }}
+        initialValues={FORM_INITIAL_VALUES}
         onFinish={onFinish}
         layout="horizontal">
         <Form.Item label="Title" name="title">

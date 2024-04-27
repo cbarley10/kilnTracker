@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { DEV_URL } from "../constants";
 import { Layout, Typography, Card, Button, Alert } from "antd";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -21,7 +22,7 @@ const Integrations = ({ klaviyoAuthorized, profile }) => {
         email: person.email
       };
       const response = await axios.post(
-        "http://localhost:4000/historical-sync",
+        `${DEV_URL}/historical-sync`,
         body,
         {
           headers: {
@@ -79,13 +80,13 @@ const Integrations = ({ klaviyoAuthorized, profile }) => {
         actions={
           !klaviyoAuthorized
             ? [
-                <Link to={`http://localhost:4000/oauth/klaviyo/authorize`}>
+                <Link to={`${DEV_URL}/oauth/klaviyo/authorize`}>
                   Connect Integration <ApiOutlined key="Connect" />
                 </Link>
               ]
             : [
                 <Link
-                  to={`http://localhost:4000/oauth/klaviyo/remove?token=${localStorage.getItem(
+                  to={`${DEV_URL}/oauth/klaviyo/remove?token=${localStorage.getItem(
                     "kl_refresh_token"
                   )}`}>
                   Remove <DisconnectOutlined key="Disconnect" />

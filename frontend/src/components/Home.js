@@ -23,7 +23,12 @@ const Home = ({ profile }) => {
             return {
               ...item,
               view: (
-                <Link to={`/firing/${item.key}`} state={{ ...item }}>
+                <Link
+                  to={`/firing/${item.title
+                    .toLowerCase()
+                    .split(" ")
+                    .join("-")}`}
+                  state={{ ...item }}>
                   View
                 </Link>
               )
